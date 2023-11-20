@@ -35,13 +35,61 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void PlayerMove()
         {
-            
 
             char player = 'P';
 
-            map[height / 2, width / 2] = player;
+            int currentPosY = height / 2;
+            int currentPosX = width / 2;
+
+            map[currentPosY, currentPosX] = player;
+
 
             DisplayMap();
+
+            while (Console.ReadKey().Key != ConsoleKey.E)
+            {
+
+
+                if (Console.ReadKey().Key == ConsoleKey.W)
+                {
+                    currentPosY--;
+
+                    map[currentPosY, currentPosX] = player;
+
+                    DisplayMap();
+                }
+
+                else if (Console.ReadKey().Key == ConsoleKey.S)
+                {
+                    currentPosY++;
+
+                    map[currentPosY, currentPosX] = player;
+
+                    DisplayMap();
+                }
+
+                else if (Console.ReadKey().Key == ConsoleKey.A)
+                {
+                    currentPosX--;
+
+                    map[currentPosY, currentPosX] = player;
+
+                    DisplayMap();
+                }
+
+                else if (Console.ReadKey().Key == ConsoleKey.D)
+                {
+                    currentPosX++;
+
+                    map[currentPosY, currentPosX] = player;
+
+                    DisplayMap();
+                }
+            }
+
+
+
+
 
         }
 
@@ -58,6 +106,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             Console.Write(map[currentRow, currentCol]);
         }
+
 
         static void DisplayMap()
         {
