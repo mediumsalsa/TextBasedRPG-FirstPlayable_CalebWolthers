@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace TextBasedRPG_FirstPlayable_CalebWolthers
 {
@@ -15,6 +16,11 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int width;
         static int height;
 
+        static ConsoleKeyInfo playerInput;
+        static ConsoleKey playerIn;
+
+
+
 
         static void Main(string[] args)
         {
@@ -24,8 +30,12 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             Console.WriteLine("Current map width: " + width);
             Console.WriteLine("Current map height: " + height);
 
-
-            PlayerMove();
+            while (Console.ReadKey(true).Key != ConsoleKey.E)
+            {
+                playerInput = ConsoleKey.O;
+                DisplayMap();
+                GetInput();
+            }
 
 
             Console.ReadKey();
@@ -33,7 +43,10 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         }
 
-        static void PlayerMove()
+
+        
+
+        static void GetInput()
         {
 
             char player = 'P';
@@ -46,12 +59,17 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             DisplayMap();
 
-            while (Console.ReadKey().Key != ConsoleKey.E)
+            playerInput = Console.ReadKey(true);
+
+            playerIn 
+
+            while (Console.ReadKey(true).Key != ConsoleKey.E)
             {
 
 
-                if (Console.ReadKey().Key == ConsoleKey.W)
+                while (playerInput == ConsoleKey.W)
                 {
+
                     currentPosY--;
 
                     map[currentPosY, currentPosX] = player;
@@ -59,7 +77,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DisplayMap();
                 }
 
-                else if (Console.ReadKey().Key == ConsoleKey.S)
+                while (playerInput == ConsoleKey.S)
                 {
                     currentPosY++;
 
@@ -68,7 +86,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DisplayMap();
                 }
 
-                else if (Console.ReadKey().Key == ConsoleKey.A)
+                while (playerInput == ConsoleKey.A)
                 {
                     currentPosX--;
 
@@ -77,7 +95,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DisplayMap();
                 }
 
-                else if (Console.ReadKey().Key == ConsoleKey.D)
+                while (playerInput == ConsoleKey.D)
                 {
                     currentPosX++;
 
@@ -110,6 +128,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void DisplayMap()
         {
+            Console.Clear();
+
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("+");
             for (int i = 0; i < width; i++)
