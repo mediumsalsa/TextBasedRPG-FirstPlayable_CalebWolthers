@@ -16,8 +16,11 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int width;
         static int height;
 
-        static ConsoleKeyInfo playerInput;
-        static ConsoleKey playerIn;
+        static char player = 'P';
+
+        static int playerPosX;
+        static int playerPosY;
+
 
 
 
@@ -30,11 +33,19 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             Console.WriteLine("Current map width: " + width);
             Console.WriteLine("Current map height: " + height);
 
+            map[height / 2, width / 2] = player;
+            playerPosX = width / 2;
+            playerPosY = height / 2;
+
+
             while (Console.ReadKey(true).Key != ConsoleKey.E)
             {
-                playerInput = ConsoleKey.O;
+                
+
                 DisplayMap();
+
                 GetInput();
+
             }
 
 
@@ -48,66 +59,88 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void GetInput()
         {
+            var exit = false;
 
-            char player = 'P';
+            ConsoleKeyInfo keyInfo;
 
-            int currentPosY = height / 2;
-            int currentPosX = width / 2;
-
-            map[currentPosY, currentPosX] = player;
-
-
-            DisplayMap();
-
-            playerInput = Console.ReadKey(true);
-
-            playerIn 
-
-            while (Console.ReadKey(true).Key != ConsoleKey.E)
+            do
             {
+                Console.WriteLine("use wasd to move");
 
+                keyInfo = Console.ReadKey(true);
 
-                while (playerInput == ConsoleKey.W)
+                Console.WriteLine();
+
+                switch (keyInfo.Key)
                 {
+                    case ConsoleKey.W:
+                        KeyW();
+                        break;
 
-                    currentPosY--;
+                    case ConsoleKey.A:
+                        KeyA();
+                        break;
 
-                    map[currentPosY, currentPosX] = player;
+                    case ConsoleKey.S:
+                        KeyS();
+                        break;
 
-                    DisplayMap();
-                }
+                    case ConsoleKey.D:
+                        KeyD();
+                        break;
 
-                while (playerInput == ConsoleKey.S)
-                {
-                    currentPosY++;
+                    default:
+                        //ExitProgram();
+                        break;
 
-                    map[currentPosY, currentPosX] = player;
-
-                    DisplayMap();
-                }
-
-                while (playerInput == ConsoleKey.A)
-                {
-                    currentPosX--;
-
-                    map[currentPosY, currentPosX] = player;
-
-                    DisplayMap();
-                }
-
-                while (playerInput == ConsoleKey.D)
-                {
-                    currentPosX++;
-
-                    map[currentPosY, currentPosX] = player;
-
-                    DisplayMap();
                 }
             }
 
+            while (exit == false);
+        }
 
+        static void KeyW()
+        {
+            playerPosY--;
 
+            map[playerPosY, playerPosX] = player;
 
+            DisplayMap();
+
+            Console.WriteLine("W");
+
+        }
+        static void KeyA()
+        {
+            playerPosX--;
+
+            map[playerPosY, playerPosX] = player;
+
+            DisplayMap();
+
+            Console.WriteLine("A");
+
+        }
+        static void KeyS()
+        {
+            playerPosY++;
+
+            map[playerPosY, playerPosX] = player;
+
+            DisplayMap();
+
+            Console.WriteLine("S");
+
+        }
+        static void KeyD()
+        {
+            playerPosX++;
+
+            map[playerPosY, playerPosX] = player;
+
+            DisplayMap();
+
+            Console.WriteLine("D");
 
         }
 
