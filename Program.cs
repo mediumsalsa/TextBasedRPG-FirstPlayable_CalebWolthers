@@ -10,16 +10,38 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
     internal class Program
     {
 
+        //Map Variables
         static int currentRow = 0;
         static int currentCol = 0;
 
         static int width;
         static int height;
-
+        
+        //Player Variables
         static char player = 'P';
 
         static int playerPosX;
         static int playerPosY;
+
+        static int nextPosX;
+        static int nextPosY;
+
+        static int lastPosX;
+        static int lastPosY;
+
+        //Enemy Variables
+        static char goblin = 'G';
+
+        static int goblinPosX;
+        static int goblinPosY;
+
+        static int goblinNextPosX;
+        static int goblinNextPosY;
+
+        static int goblinLastPosX;
+        static int goblinLastPosY;
+
+        static bool goblinUp = true;
 
 
 
@@ -55,7 +77,10 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         }
 
 
-        
+        static void MoveGoblin()
+        {
+
+        }
 
         static void GetInput()
         {
@@ -101,46 +126,93 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void KeyW()
         {
-            playerPosY--;
+            nextPosY = playerPosY - 1;
 
-            map[playerPosY, playerPosX] = player;
+            lastPosY = playerPosY;
+            lastPosX = playerPosX;
+
+            if (playerPosY != 0 && map[nextPosY, playerPosX] != '#')
+            {
+                playerPosY--;
+
+                map[lastPosY, lastPosX] = '~';
+
+                map[playerPosY, playerPosX] = player;
+
+                Console.WriteLine("W");
+            }
 
             DisplayMap();
 
-            Console.WriteLine("W");
+
 
         }
         static void KeyA()
         {
-            playerPosX--;
+            nextPosX = playerPosX - 1;
 
-            map[playerPosY, playerPosX] = player;
+            lastPosY = playerPosY;
+            lastPosX = playerPosX;
+
+            if (playerPosX != 0 && map[playerPosY, nextPosX] != '#')
+            {
+                playerPosX--;
+
+                map[lastPosY, lastPosX] = '~';
+
+                map[playerPosY, playerPosX] = player;
+
+                Console.WriteLine("A");
+            }
 
             DisplayMap();
 
-            Console.WriteLine("A");
+
 
         }
         static void KeyS()
         {
-            playerPosY++;
+            nextPosY = playerPosY + 1;
 
-            map[playerPosY, playerPosX] = player;
+            lastPosY = playerPosY;
+            lastPosX = playerPosX;
+
+            if (playerPosY != height - 1 && map[nextPosY, playerPosX] != '#')
+            {
+                playerPosY++;
+
+                map[lastPosY, lastPosX] = '~';
+
+                map[playerPosY, playerPosX] = player;
+
+                Console.WriteLine("S");
+            }
 
             DisplayMap();
 
-            Console.WriteLine("S");
+            
 
         }
         static void KeyD()
         {
-            playerPosX++;
+            nextPosX = playerPosX + 1;
 
-            map[playerPosY, playerPosX] = player;
+            lastPosY = playerPosY;
+            lastPosX = playerPosX;
+
+            if (playerPosX != width - 1 && map[playerPosY, nextPosX] != '#')
+            {
+                playerPosX++;
+
+                map[lastPosY, lastPosX] = '~';
+
+                map[playerPosY, playerPosX] = player;
+
+                Console.WriteLine("D");
+            }
 
             DisplayMap();
 
-            Console.WriteLine("D");
 
         }
 
@@ -148,11 +220,20 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         {
             if (map[currentRow, currentCol] == '~')
             {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
             }
             else if (map[currentRow, currentCol] == 'P')
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
+            }
+            else if (map[currentRow, currentCol] == '#')
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            }
+            else if (map[currentRow, currentCol] == 'G')
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                MoveGoblin();
             }
 
             Console.Write(map[currentRow, currentCol]);
@@ -220,22 +301,22 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
                 static char[,] map = new char[,] // dimensions defined by following data:
                 {
+             {'~','~','~','~','~','~','~','~','~','~','~','~','G','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','#','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','#','#','#','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
              {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
 
 
 
