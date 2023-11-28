@@ -1,14 +1,18 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
+using System.Reflection.Emit;
 
 namespace TextBasedRPG_FirstPlayable_CalebWolthers
 {
     internal class Program
     {
+        static string breaker = "------------------------";
+
 
         //Map Variables
         static int currentRow = 0;
@@ -16,9 +20,20 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static int width;
         static int height;
-        
+
+
+
+        static string[] mapFile;
+
+        static char[,] map;
+
+
+
         //Player Variables
         static char player = 'P';
+
+        static int playerHealth = 100;
+        static string healthStatus;
 
         static int playerPosX;
         static int playerPosY;
@@ -29,8 +44,12 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int lastPosX;
         static int lastPosY;
 
+        static int nextMove;
+
         //Enemy Variables
         static char goblin = 'G';
+
+        static int goblinDamage = 19;
 
         static int goblinPosX;
         static int goblinPosY;
@@ -43,21 +62,15 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static bool goblinUp = true;
 
+        static int goblinNextMove;
+
 
 
 
 
         static void Main(string[] args)
         {
-            width = map.GetLength(1);
-            height = map.GetLength(0);
-
-            Console.WriteLine("Current map width: " + width);
-            Console.WriteLine("Current map height: " + height);
-
-            map[height / 2, width / 2] = player;
-            playerPosX = width / 2;
-            playerPosY = height / 2;
+            StartGame();
 
 
             while (Console.ReadKey(true).Key != ConsoleKey.E)
@@ -76,6 +89,44 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         }
 
+        static void StartGame()
+        {
+            mapFile = File.ReadAllLines(@"TextFile2.txt");
+
+            map = new char[mapFile.Length, mapFile[0].Length];
+
+            MakeMap();
+
+            width = map.GetLength(1);
+            height = map.GetLength(0);
+
+            Console.WriteLine("Current map width: " + width);
+            Console.WriteLine("Current map height: " + height);
+            Console.WriteLine();
+            Console.WriteLine("Press any key....");
+
+            map[height / 2, width / 2] = player;
+            playerPosX = width / 2;
+            playerPosY = height / 2;
+
+            goblinNextMove = goblinNextPosX;
+        }
+
+        static void MakeMap()
+        {
+            for (int i = 0; i < mapFile.Length; i++)
+            {
+                for (int j = 0; j < mapFile[0].Length; j++)
+                {
+                    map[i,j] = mapFile[i][j];
+                }
+            }
+        }
+
+        static void TakeDamage(int damage)
+        {
+            playerHealth -= damage;
+        }
 
         static void MoveGoblin()
         {
@@ -109,7 +160,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     case ConsoleKey.S:
                         KeyS();
                         break;
-
+                        
                     case ConsoleKey.D:
                         KeyD();
                         break;
@@ -131,13 +182,12 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             lastPosY = playerPosY;
             lastPosX = playerPosX;
 
-            if (playerPosY != 0 && map[nextPosY, playerPosX] != '#')
+            if (playerPosY != 0 && map[nextPosY, playerPosX] != '#' && map[nextPosY, playerPosX] != '~')
             {
+                
                 playerPosY--;
 
-                map[lastPosY, lastPosX] = '~';
-
-                map[playerPosY, playerPosX] = player;
+                PlayerMoved();
 
                 Console.WriteLine("W");
             }
@@ -154,13 +204,11 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             lastPosY = playerPosY;
             lastPosX = playerPosX;
 
-            if (playerPosX != 0 && map[playerPosY, nextPosX] != '#')
+            if (playerPosX != 0 && map[playerPosY, nextPosX] != '#' && map[playerPosY, nextPosX] != '~')
             {
                 playerPosX--;
 
-                map[lastPosY, lastPosX] = '~';
-
-                map[playerPosY, playerPosX] = player;
+                PlayerMoved();
 
                 Console.WriteLine("A");
             }
@@ -177,13 +225,11 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             lastPosY = playerPosY;
             lastPosX = playerPosX;
 
-            if (playerPosY != height - 1 && map[nextPosY, playerPosX] != '#')
+            if (playerPosY != height - 1 && map[nextPosY, playerPosX] != '#' && map[nextPosY, playerPosX] != '~')
             {
                 playerPosY++;
 
-                map[lastPosY, lastPosX] = '~';
-
-                map[playerPosY, playerPosX] = player;
+                PlayerMoved();
 
                 Console.WriteLine("S");
             }
@@ -200,35 +246,52 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             lastPosY = playerPosY;
             lastPosX = playerPosX;
 
-            if (playerPosX != width - 1 && map[playerPosY, nextPosX] != '#')
+            if (playerPosX != width - 1 && map[playerPosY, nextPosX] != '#' && map[playerPosY, nextPosX] != '~')
             {
                 playerPosX++;
 
-                map[lastPosY, lastPosX] = '~';
-
-                map[playerPosY, playerPosX] = player;
+                PlayerMoved();
 
                 Console.WriteLine("D");
             }
 
             DisplayMap();
 
+        }
+
+        static void PlayerMoved()
+        {
+            map[lastPosY, lastPosX] = '`';
+
+            if (map[playerPosY, playerPosX] == 'G')
+            {
+                Console.WriteLine("Aaaaaaaaaaaaaaaaaaaaaa");
+                TakeDamage(goblinDamage);
+            }
+
+            map[playerPosY, playerPosX] = player;
+            
+
 
         }
 
         static void DrawTile()
         {
-            if (map[currentRow, currentCol] == '~')
+            if (map[currentRow, currentCol] == '`')
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            }
+            else if (map[currentRow, currentCol] == '~')
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
             }
             else if (map[currentRow, currentCol] == 'P')
             {
-                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.ForegroundColor = ConsoleColor.DarkRed;
             }
             else if (map[currentRow, currentCol] == '#')
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
             }
             else if (map[currentRow, currentCol] == 'G')
             {
@@ -292,36 +355,76 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             
             currentCol = 0;
             currentRow = 0;
+
+
+            ShowHUD();
+
+        }
+
+
+        static void ShowHUD()
+        {
+            if (playerHealth == 100)
+            { healthStatus = "Perfect Health"; }
+
+            else if (playerHealth < 99 && playerHealth >= 90)
+            { healthStatus = "Healthy"; }
+
+            else if (playerHealth < 89 && playerHealth >= 75)
+            { healthStatus = "Hurt"; }
+
+            else if (playerHealth < 74 && playerHealth >= 50)
+            { healthStatus = "Badly Hurt"; }
+
+            else if (playerHealth < 49 && playerHealth >= 20)
+            { healthStatus = "Danger"; }
+
+            else if (playerHealth < 19 && playerHealth > 0)
+            { healthStatus = "ALMOST DEAD"; }
+
+            else { healthStatus = "Dead"; }
+
+
+            Console.WriteLine("");
+            Console.WriteLine(breaker);
+            Console.WriteLine("Health: " + playerHealth);
+            Console.WriteLine("Health Status: " + healthStatus);
+            Console.WriteLine(breaker);
+            Console.WriteLine("");
         }
 
 
 
+        // dimensions defined by following data:
 
 
 
-                static char[,] map = new char[,] // dimensions defined by following data:
-                {
-             {'~','~','~','~','~','~','~','~','~','~','~','~','G','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','#','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','#','#','#','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-             {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
 
 
 
-                };
-            }
+
+
+        /* {'~','~','~','~','~','~','~','~','~','~','~','~','G','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','#','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','#','#','#','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
+
+
+
+            };*/
+    }
         }
     
 
