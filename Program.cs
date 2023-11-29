@@ -44,15 +44,19 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int lastPosX;
         static int lastPosY;
 
-        static int nextMove;
-
         //Enemy Variables
         static char goblin = 'G';
 
         static int goblinDamage = 19;
 
+        //Goblin 1
         static int goblinPosX;
         static int goblinPosY;
+        static bool goblinUp = true;
+        //Goblin 2
+        static int goblinPosX_2;
+        static int goblinPosY_2;
+        static bool goblinUp_2 = false;
 
         static int goblinNextPosX;
         static int goblinNextPosY;
@@ -60,9 +64,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int goblinLastPosX;
         static int goblinLastPosY;
 
-        static bool goblinUp = true;
+        
 
-        static int goblinNextMove;
 
 
 
@@ -70,6 +73,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void Main(string[] args)
         {
+
             StartGame();
 
 
@@ -91,6 +95,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void StartGame()
         {
+            Console.CursorVisible = !true;
+
             mapFile = File.ReadAllLines(@"TextFile2.txt");
 
             map = new char[mapFile.Length, mapFile[0].Length];
@@ -105,11 +111,18 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             Console.WriteLine();
             Console.WriteLine("Press any key....");
 
-            map[height / 2, width / 2] = player;
-            playerPosX = width / 2;
-            playerPosY = height / 2;
+            map[13, 5] = player;
+            playerPosX = 5;
+            playerPosY = 13;
 
-            goblinNextMove = goblinNextPosX;
+            map[29, 27] = goblin;
+            goblinPosX = 27;
+            goblinPosY = 29;
+
+            map[24, 15] = goblin;
+            goblinPosX_2 = 15;
+            goblinPosY_2 = 24;
+
         }
 
         static void MakeMap()
@@ -128,10 +141,6 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             playerHealth -= damage;
         }
 
-        static void MoveGoblin()
-        {
-
-        }
 
         static void GetInput()
         {
@@ -170,6 +179,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                         break;
 
                 }
+                
             }
 
             while (exit == false);
@@ -265,15 +275,62 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             if (map[playerPosY, playerPosX] == 'G')
             {
-                Console.WriteLine("Aaaaaaaaaaaaaaaaaaaaaa");
                 TakeDamage(goblinDamage);
             }
 
             map[playerPosY, playerPosX] = player;
-            
+
+            MoveGoblin(ref goblinPosX, ref goblinPosY, ref goblinUp);
+            MoveGoblin(ref goblinPosX_2, ref goblinPosY_2, ref goblinUp_2);
+        }
+
+
+        //C stands for parameter... idk
+        static void MoveGoblin(ref int CgoblinPosX, ref int CgoblinPosY, ref bool CgoblinUp)
+        {
+
+            if (CgoblinUp == true)
+            {
+                goblinNextPosY = CgoblinPosY - 1;
+
+                goblinLastPosY = CgoblinPosY;
+                goblinLastPosX = CgoblinPosX;
+
+                if (CgoblinPosY != 0 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+                {
+
+                    CgoblinPosY--;
+
+                    map[goblinLastPosY, goblinLastPosX] = '`';
+
+                    map[CgoblinPosY, CgoblinPosX] = goblin;
+                }
+                else { CgoblinUp = false; }
+            }
+
+            else if (CgoblinUp == false)
+            {
+                goblinNextPosY = CgoblinPosY + 1;
+
+                goblinLastPosY = CgoblinPosY;
+                goblinLastPosX = CgoblinPosX;
+
+                if (CgoblinPosY != height - 1 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+                {
+
+                    CgoblinPosY++;
+
+                    map[goblinLastPosY, goblinLastPosX] = '`';
+
+                    map[CgoblinPosY, CgoblinPosX] = goblin;
+                }
+                else {  CgoblinUp = true; }
+            }
+
 
 
         }
+
 
         static void DrawTile()
         {
@@ -296,7 +353,6 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             else if (map[currentRow, currentCol] == 'G')
             {
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
-                MoveGoblin();
             }
 
             Console.Write(map[currentRow, currentCol]);
@@ -305,7 +361,11 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void DisplayMap()
         {
-            Console.Clear();
+
+            Console.CursorVisible = !true;
+
+            Console.SetCursorPosition(0, 0);
+            //Console.Clear();
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("+");
@@ -356,9 +416,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             currentCol = 0;
             currentRow = 0;
 
-
-            ShowHUD();
-
+            Console.CursorVisible = !true;
         }
 
 
@@ -391,39 +449,12 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             Console.WriteLine("Health Status: " + healthStatus);
             Console.WriteLine(breaker);
             Console.WriteLine("");
+
+            Console.CursorVisible = !true;
         }
 
 
 
-        // dimensions defined by following data:
-
-
-
-
-
-
-
-
-        /* {'~','~','~','~','~','~','~','~','~','~','~','~','G','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','#','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','#','#','#','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','#','~','~','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-         {'~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','#','#','#','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~','~'},
-
-
-
-            };*/
     }
         }
     
