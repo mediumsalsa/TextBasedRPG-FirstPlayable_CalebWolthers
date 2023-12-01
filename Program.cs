@@ -22,7 +22,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int width;
         static int height;
 
-
+        static int spikeDamage = 25;
 
         static string[] mapFile;
 
@@ -45,6 +45,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static int lastPosX;
         static int lastPosY;
+
+        static int healthPotion = 20;
 
         //Enemy Variables
 
@@ -119,10 +121,15 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             Console.WriteLine("Game Begins");
             Console.WriteLine();
+            Console.WriteLine("Avoid Spikes(^)");
+            Console.WriteLine("Move into enemies(G, O) to attack them, but watch out! ");
+            Console.WriteLine("They will attack back");
+            Console.WriteLine("Collect Health potions(@) to heal yourself");
+            Console.WriteLine();
             Console.WriteLine("Current map width: " + width);
             Console.WriteLine("Current map height: " + height);
             Console.WriteLine();
-            Console.WriteLine("Press any key....");
+            Console.WriteLine("Press any key to continue....");
 
             Console.ReadKey();
 
@@ -164,6 +171,10 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                 StartGame();
             }
 
+        }
+        static void PlayerHeal(int heal)
+        {
+            playerHealth += heal;
         }
 
         static void DamageEnemy(int damage, ref int health, ref char enemy)
@@ -252,13 +263,21 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
                     TakeDamage(goblinDamage);
                 }
+                else if (map[nextPosY, playerPosX] == '^')
+                {
+                    TakeDamage(spikeDamage);
+                }
                 else
-                { 
-                playerPosY--;
+                {
+                    if (map[nextPosY, playerPosX] == '@')
+                    {
+                        PlayerHeal(healthPotion);
+                    }
+                    playerPosY--;
 
-                PlayerMoved();
+                    PlayerMoved();
 
-                Console.WriteLine("W");
+                    Console.WriteLine("W");
                 }
             }
 
@@ -286,8 +305,16 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
                     TakeDamage(goblinDamage);
                 }
+                else if (map[playerPosY, nextPosX] == '^')
+                {
+                    TakeDamage(spikeDamage);
+                }
                 else
                 {
+                    if (map[playerPosY, nextPosX] == '@')
+                    {
+                        PlayerHeal(healthPotion);
+                    }
                     playerPosX--;
 
                     PlayerMoved();
@@ -320,8 +347,17 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
                     TakeDamage(goblinDamage);
                 }
+                else if (map[nextPosY, playerPosX] == '^')
+                {
+                    TakeDamage(spikeDamage);
+                }
+
                 else
                 {
+                    if (map[nextPosY, playerPosX] == '@')
+                    {
+                        PlayerHeal(healthPotion);
+                    }
                     playerPosY++;
 
                     PlayerMoved();
@@ -354,8 +390,16 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                     DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
                     TakeDamage(goblinDamage);
                 }
+                else if (map[playerPosY, nextPosX] == '^')
+                {
+                    TakeDamage(spikeDamage);
+                }
                 else
                 {
+                    if (map[playerPosY, nextPosX] == '@')
+                    {
+                        PlayerHeal(healthPotion);
+                    }
                     playerPosX++;
 
                     PlayerMoved();
@@ -383,7 +427,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         //C stands for parameter... idk
         static void MoveGoblin(ref int CgoblinPosX, ref int CgoblinPosY, ref bool CgoblinUp, char enemy)
         {
-            
+            if (enemy != '`')
+            {
                 if (CgoblinUp == true)
                 {
                     goblinNextPosY = CgoblinPosY - 1;
@@ -404,7 +449,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                             map[goblinLastPosY, goblinLastPosX] = '`';
 
                             map[CgoblinPosY, CgoblinPosX] = enemy;
-                        
+
                         }
                     }
                     else { CgoblinUp = false; }
@@ -431,12 +476,12 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                             map[goblinLastPosY, goblinLastPosX] = '`';
 
                             map[CgoblinPosY, CgoblinPosX] = enemy;
-                        
+
                         }
                     }
                     else { CgoblinUp = true; }
                 }
-
+            }
         }
 
 
@@ -465,6 +510,14 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             else if (map[currentRow, currentCol] == 'O')
             {
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
+            }
+            else if (map[currentRow, currentCol] == '^')
+            {
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            }
+            else if (map[currentRow, currentCol] == '@')
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
             }
 
             Console.Write(map[currentRow, currentCol]);
@@ -536,7 +589,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void ShowHUD()
         {
-            if (playerHealth == 100)
+            if (playerHealth >= 100)
             { healthStatus = "Perfect Health"; }
 
             else if (playerHealth < 99 && playerHealth >= 90)
