@@ -34,6 +34,7 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static char player = 'P';
 
         static int playerHealth = 100;
+        static int playerSTR = 50;
         static string healthStatus;
 
         static int playerPosX;
@@ -46,18 +47,23 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static int lastPosY;
 
         //Enemy Variables
-        static char goblin = 'G';
 
-        static int goblinDamage = 19;
+        static int goblinDamage = 20;
 
         //Goblin 1
+        static char goblin = 'G';
         static int goblinPosX;
         static int goblinPosY;
         static bool goblinUp = true;
+        static int goblinHealth = 100;
         //Goblin 2
+        static char goblin_2 = 'O';
         static int goblinPosX_2;
         static int goblinPosY_2;
         static bool goblinUp_2 = false;
+        static int goblinHealth_2 = 100;
+
+
 
         static int goblinNextPosX;
         static int goblinNextPosY;
@@ -96,6 +102,10 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
         static void StartGame()
         {
+            Console.Clear();
+
+            Console.SetCursorPosition(0, 0);
+
             Console.CursorVisible = !true;
 
             mapFile = File.ReadAllLines(@"TextFile2.txt");
@@ -107,22 +117,29 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             width = map.GetLength(1);
             height = map.GetLength(0);
 
+            Console.WriteLine("Game Begins");
+            Console.WriteLine();
             Console.WriteLine("Current map width: " + width);
             Console.WriteLine("Current map height: " + height);
             Console.WriteLine();
             Console.WriteLine("Press any key....");
 
+            Console.ReadKey();
+
+            playerHealth = 100;
             map[13, 5] = player;
             playerPosX = 5;
             playerPosY = 13;
 
-            map[29, 27] = goblin;
-            goblinPosX = 27;
-            goblinPosY = 29;
+            goblin = 'G';
+            map[11, 40] = goblin;
+            goblinPosX = 40;
+            goblinPosY = 11;
 
-            map[24, 15] = goblin;
+            goblin_2 = 'O';
+            map[18, 15] = goblin_2;
             goblinPosX_2 = 15;
-            goblinPosY_2 = 24;
+            goblinPosY_2 = 18;
 
         }
 
@@ -140,6 +157,36 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         static void TakeDamage(int damage)
         {
             playerHealth -= damage;
+
+            if (playerHealth <= 0)
+            {
+                playerHealth = 0;
+                StartGame();
+            }
+
+        }
+
+        static void DamageEnemy(int damage, ref int health, ref char enemy)
+        {
+            health -= damage;
+            if (health <= 0)
+            {
+                if (enemy == goblin_2)
+                {
+                    map[goblinPosY_2, goblinPosX_2] = '`';
+                    enemy = '`';
+                    DisplayMap();
+                }
+                if (enemy == goblin)
+                {
+                    map[goblinPosY, goblinPosX] = '`';
+                    enemy = '`';
+                    DisplayMap();
+                }
+
+
+                DisplayMap();
+            }
         }
 
 
@@ -195,17 +242,29 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             if (playerPosY != 0 && map[nextPosY, playerPosX] != '#' && map[nextPosY, playerPosX] != '~')
             {
-                
+                if (map[nextPosY, playerPosX] == 'G')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth, ref goblin);
+                    TakeDamage(goblinDamage);
+                }
+                else if (map[nextPosY, playerPosX] == 'O')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
+                    TakeDamage(goblinDamage);
+                }
+                else
+                { 
                 playerPosY--;
 
                 PlayerMoved();
 
                 Console.WriteLine("W");
+                }
             }
 
             DisplayMap();
 
-
+            
 
         }
         static void KeyA()
@@ -217,11 +276,24 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             if (playerPosX != 0 && map[playerPosY, nextPosX] != '#' && map[playerPosY, nextPosX] != '~')
             {
-                playerPosX--;
+                if (map[playerPosY, nextPosX] == 'G')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth, ref goblin);
+                    TakeDamage(goblinDamage);
+                }
+                else if (map[playerPosY, nextPosX] == 'O')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
+                    TakeDamage(goblinDamage);
+                }
+                else
+                {
+                    playerPosX--;
 
-                PlayerMoved();
+                    PlayerMoved();
 
-                Console.WriteLine("A");
+                    Console.WriteLine("A");
+                }
             }
 
             DisplayMap();
@@ -238,11 +310,24 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             if (playerPosY != height - 1 && map[nextPosY, playerPosX] != '#' && map[nextPosY, playerPosX] != '~')
             {
-                playerPosY++;
+                if (map[nextPosY, playerPosX] == 'G')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth, ref goblin);
+                    TakeDamage(goblinDamage);
+                }
+                else if (map[nextPosY, playerPosX] == 'O')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
+                    TakeDamage(goblinDamage);
+                }
+                else
+                {
+                    playerPosY++;
 
-                PlayerMoved();
+                    PlayerMoved();
 
-                Console.WriteLine("S");
+                    Console.WriteLine("S");
+                }
             }
 
             DisplayMap();
@@ -259,11 +344,24 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
 
             if (playerPosX != width - 1 && map[playerPosY, nextPosX] != '#' && map[playerPosY, nextPosX] != '~')
             {
-                playerPosX++;
+                if (map[playerPosY, nextPosX] == 'G')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth, ref goblin);
+                    TakeDamage(goblinDamage);
+                }
+                else if (map[playerPosY, nextPosX] == 'O')
+                {
+                    DamageEnemy(playerSTR, ref goblinHealth_2, ref goblin_2);
+                    TakeDamage(goblinDamage);
+                }
+                else
+                {
+                    playerPosX++;
 
-                PlayerMoved();
+                    PlayerMoved();
 
-                Console.WriteLine("D");
+                    Console.WriteLine("D");
+                }
             }
 
             DisplayMap();
@@ -274,61 +372,70 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
         {
             map[lastPosY, lastPosX] = '`';
 
-            if (map[playerPosY, playerPosX] == 'G')
-            {
-                TakeDamage(goblinDamage);
-            }
 
             map[playerPosY, playerPosX] = player;
 
-            MoveGoblin(ref goblinPosX, ref goblinPosY, ref goblinUp);
-            MoveGoblin(ref goblinPosX_2, ref goblinPosY_2, ref goblinUp_2);
+            MoveGoblin(ref goblinPosX, ref goblinPosY, ref goblinUp, goblin);
+            MoveGoblin(ref goblinPosX_2, ref goblinPosY_2, ref goblinUp_2, goblin_2);
         }
 
 
         //C stands for parameter... idk
-        static void MoveGoblin(ref int CgoblinPosX, ref int CgoblinPosY, ref bool CgoblinUp)
+        static void MoveGoblin(ref int CgoblinPosX, ref int CgoblinPosY, ref bool CgoblinUp, char enemy)
         {
-
-            if (CgoblinUp == true)
-            {
-                goblinNextPosY = CgoblinPosY - 1;
-
-                goblinLastPosY = CgoblinPosY;
-                goblinLastPosX = CgoblinPosX;
-
-                if (CgoblinPosY != 0 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+            
+                if (CgoblinUp == true)
                 {
+                    goblinNextPosY = CgoblinPosY - 1;
 
-                    CgoblinPosY--;
+                    goblinLastPosY = CgoblinPosY;
+                    goblinLastPosX = CgoblinPosX;
 
-                    map[goblinLastPosY, goblinLastPosX] = '`';
+                    if (CgoblinPosY != 0 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+                    {
+                        if (map[goblinNextPosY, CgoblinPosX] == 'P' && enemy != '`')
+                        {
+                            TakeDamage(goblinDamage);
+                        }
+                        else
+                        {
+                            CgoblinPosY--;
 
-                    map[CgoblinPosY, CgoblinPosX] = goblin;
+                            map[goblinLastPosY, goblinLastPosX] = '`';
+
+                            map[CgoblinPosY, CgoblinPosX] = enemy;
+                        
+                        }
+                    }
+                    else { CgoblinUp = false; }
                 }
-                else { CgoblinUp = false; }
-            }
 
-            else if (CgoblinUp == false)
-            {
-                goblinNextPosY = CgoblinPosY + 1;
-
-                goblinLastPosY = CgoblinPosY;
-                goblinLastPosX = CgoblinPosX;
-
-                if (CgoblinPosY != height - 1 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+                else if (CgoblinUp == false)
                 {
+                    goblinNextPosY = CgoblinPosY + 1;
 
-                    CgoblinPosY++;
+                    goblinLastPosY = CgoblinPosY;
+                    goblinLastPosX = CgoblinPosX;
 
-                    map[goblinLastPosY, goblinLastPosX] = '`';
+                    if (CgoblinPosY != height - 1 && map[goblinNextPosY, CgoblinPosX] != '#' && map[goblinNextPosY, CgoblinPosX] != '~')
+                    {
+                        if (map[goblinNextPosY, CgoblinPosX] == 'P' && enemy != '`')
+                        {
+                            TakeDamage(goblinDamage);
+                        }
+                        else
+                        {
 
-                    map[CgoblinPosY, CgoblinPosX] = goblin;
+                            CgoblinPosY++;
+
+                            map[goblinLastPosY, goblinLastPosX] = '`';
+
+                            map[CgoblinPosY, CgoblinPosX] = enemy;
+                        
+                        }
+                    }
+                    else { CgoblinUp = true; }
                 }
-                else {  CgoblinUp = true; }
-            }
-
-
 
         }
 
@@ -352,6 +459,10 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
             }
             else if (map[currentRow, currentCol] == 'G')
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+            }
+            else if (map[currentRow, currentCol] == 'O')
             {
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
             }
@@ -418,6 +529,8 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             currentRow = 0;
 
             Console.CursorVisible = !true;
+
+            ShowHUD();
         }
 
 
@@ -442,6 +555,21 @@ namespace TextBasedRPG_FirstPlayable_CalebWolthers
             { healthStatus = "ALMOST DEAD"; }
 
             else { healthStatus = "Dead"; }
+
+
+            Console.SetCursorPosition(0, height + 2);
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.WriteLine("                                                ");
+            Console.SetCursorPosition(0, height + 2
+                );
+
 
 
             Console.WriteLine("");
